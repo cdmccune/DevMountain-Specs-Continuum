@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import PhotosUI
 
 class AddPostTableViewController: UITableViewController {
     
@@ -36,40 +37,53 @@ class AddPostTableViewController: UITableViewController {
     
     //MARK: - Helper Functions
     
-    func presentImagePickerActionSheet() {
+    func presentPhotoPicker() {
         let imagePickerController = UIImagePickerController()
         imagePickerController.delegate = self
-        
+
         let alert = UIAlertController(title: "Add Photo", message: nil, preferredStyle: .actionSheet)
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
         alert.addAction(cancelAction)
-        
+
         if UIImagePickerController.isSourceTypeAvailable(.camera) {
             alert.addAction(UIAlertAction(title: "Camera", style: .default, handler: { (_) in
-                
+
                 imagePickerController.sourceType = UIImagePickerController.SourceType.camera
-                
+
                 self.present(imagePickerController, animated: true, completion: nil)
             }))
         }
         
-        if UIImagePickerController.isSourceTypeAvailable(.photoLibrary){
-            
-            alert.addAction(UIAlertAction(title: "Photos", style: .default, handler: { (_) in
-                
-                imagePickerController.sourceType = UIImagePickerController.SourceType.photoLibrary
-                
-                self.present(imagePickerController, animated: true, completion: nil)
-            }))
-        }
-        
+        alert.addAction(UIAlertAction(title: "Photo", style: .default, handler: { _ in
+            self.presentPHPicker()
+        }))
+//
+//        if UIImagePickerController.isSourceTypeAvailable(.photoLibrary){
+//
+//            alert.addAction(UIAlertAction(title: "Photos", style: .default, handler: { (_) in
+//
+//                imagePickerController.sourceType = UIImagePickerController.SourceType.photoLibrary
+//
+//                self.present(imagePickerController, animated: true, completion: nil)
+//            }))
+//        }
+//
         present(alert, animated: true)
+    }
+    
+    func presentPHPicker() {
+        var configuration = PHPickerConfiguration()
+        configuration.filter = PHPickerFilter.images
+        configuration.selectionLimit = 1
+        
+        let picker = PHPickerViewController(configuration: configuration)
+        picker.delegate = self
+        self.present(picker, animated: true)
     }
     
     
     @IBAction func selectImageButtonTapped(_ sender: Any) {
-        presentImagePickerActionSheet()
-        selectImageButton.setTitle("", for: .normal)
+        presentPhotoPicker()
 //        postImage.image = UIImage(named: "spaceEmptyState")
 //        selectImageButton.setTitle("", for: .normal)
 //        selectedImage = UIImage(named: "spaceEmptySpace")
@@ -121,18 +135,45 @@ class AddPostTableViewController: UITableViewController {
 
 }
 
-extension AddPostTableViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+extension AddPostTableViewController: UIImagePickerControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         picker.dismiss(animated: true, completion: nil)
-        
+
         if let photo = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
-            
+
             selectImageButton.setTitle("", for: .normal)
             postImage.image = photo
         }
     }
-    
+
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true, completion: nil)
+    }
+}
+
+extension AddPostTableViewController: PHPickerViewControllerDelegate, UINavigationControllerDelegate {
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        
+        dismiss(animated: true)
+        
+        
+        for result in results {
+            result.itemProvider.loadObject(ofClass: UIImage.self) { image, error in
+                if let error = error {
+                    print(error.localizedDescription)
+                    return
+                }
+                
+                if let image = image as? UIImage {
+                    DispatchQueue.main.async {
+                        self.postImage.image = image
+                        self.selectImageButton.setTitle("", for: .normal)
+                    }
+                }
+            }
+        }
+        
+        
+        
     }
 }
