@@ -14,19 +14,167 @@ class PostController {
     
     static var shared = PostController()
     
+    let publicDB = CKContainer.default().publicCloudDatabase
     var posts: [Post] = []
     
     func addComment(comment: String, post: Post, completion: @escaping (Result<Comment, PostError>) -> Void) {
         
-        let comment = Comment(text: comment)
-        post.comments.append(comment)
+        
+        let postReference = CKRecord.Reference(recordID: post.recordID, action: .none)
+        let comment = Comment(text: comment, postReference: postReference)
+        let record = CKRecord(comment: comment)
+        
+        publicDB.save(record) { record, error in
+            if let error = error {
+                completion(.failure(.ckError(error)))
+            }
+            
+            guard let record = record,
+                  let commentNew = Comment(ckRecord: record) else {return completion(.failure(.noComment))}
+            
+            completion(.success(commentNew))
+            
+            
+        }
+        
         
     }
     
     func createPostWith(image: UIImage, caption: String, completion: @escaping (Result<Post?, PostError>) -> Void) {
-        
         let post = Post(photo: image, caption: caption)
-        self.posts.append(post)
+        let record = CKRecord(post: post)
         
+        publicDB.save(record) { record, error in
+            if let error = error {
+                completion(.failure(.ckError(error)))
+            }
+            guard let record = record,
+                  let postNew = Post(ckrecord: record) else {return completion(.failure(.noPost))}
+            
+            completion(.success(postNew))
+        }
     }
+    
+    func fetchPosts(completion: @escaping (Result<[Post]?, PostError>) -> Void) {
+        let predicate = NSPredicate(value: true)
+        let query = CKQuery(recordType: PostStrings.typeKey, predicate: predicate)
+        var operation = CKQueryOperation(query: query)
+        
+        var fetchedPosts: [Post] = []
+        
+        operation.recordMatchedBlock = { (_, result) in
+            switch result {
+            case .success(let record):
+                if let post = Post(ckrecord: record) {
+                    fetchedPosts.append(post)
+                } else {
+                    return completion(.failure(.noPost))
+                }
+            case .failure(let error):
+                return completion(.failure(.ckError(error)))
+            }
+        }
+        
+        operation.queryResultBlock = { result in
+            switch result {
+            case .success(let cursor):
+                if let cursor = cursor {
+                    let nextOperation = CKQueryOperation(cursor: cursor)
+                    
+                    nextOperation.queryResultBlock = operation.queryResultBlock
+                    
+                    nextOperation.recordMatchedBlock = operation.recordMatchedBlock
+                    
+                    nextOperation.qualityOfService = .userInteractive
+                    
+                    operation = nextOperation
+                    
+                    self.publicDB.add(nextOperation)
+                } else {
+                    print(fetchedPosts.description)
+                    return completion(.success(fetchedPosts))
+                }
+            case .failure(let error):
+                print(error.localizedDescription)
+                completion(.failure(.ckError(error)))
+            }
+            
+            
+        }
+        
+        publicDB.add(operation)
+    }
+    
+    func fetchComments(for post: Post, completion: @escaping (Result<[Comment]?, PostError>) -> Void ) {
+        let postReference = post.recordID
+        let predicate = NSPredicate(format: "%K == %@", CommentKeys.postReference, postReference)
+        let commentIDs = post.comments.compactMap({$0.recordID})
+        let predicate2 = NSPredicate(format: "NOT(recordID IN %@", commentIDs)
+        let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicate,predicate2])
+        let query = CKQuery(recordType: CommentKeys.typeKey, predicate: compoundPredicate)
+    }
+    
+    
 }
+
+
+//func fetchWorkout(completion: @escaping (Result<[Workout]?, WorkoutError>) -> Void) {
+//
+//     let predicate = NSPredicate(value: true)
+//
+//     let query = CKQuery(recordType: Constants.workoutKey, predicate: predicate)
+//
+//     var operation = CKQueryOperation(query: query)
+//
+//     var fetchedWorkouts: [Workout] = []
+//
+//     operation.recordMatchedBlock = { (_, result) in
+//
+//         switch result {
+//
+//         case .success(let record):
+//             guard let fetchedExercise = Workout(ckRecord: record) else {
+//                 return completion(.failure(.noRecord))
+//             }
+//             fetchedWorkouts.append(fetchedExercise)
+//
+//
+//         case .failure(let error):
+//             print(error.localizedDescription)
+//             return completion(.failure(.ckError(error)))
+//         }
+//         print("Inside operation.recordMatchBlock Switch")
+//     }
+//
+//     // look for records that match query
+//     operation.queryResultBlock = { result in
+//
+//         switch result {
+//
+//         case .success(let cursor):
+//             if let cursor = cursor {
+//                 let nextOperation = CKQueryOperation(cursor: cursor)
+//
+//                 nextOperation.queryResultBlock = operation.queryResultBlock
+//
+//                 nextOperation.recordMatchedBlock = operation.recordMatchedBlock
+//
+//                 nextOperation.qualityOfService = .userInteractive
+//
+//                 operation = nextOperation
+//
+//                 self.publicDB.add(nextOperation)
+//             } else {
+//
+//                 print(fetchedWorkouts.description)
+//                 return completion(.success(fetchedWorkouts))
+//             }
+//
+//         case .failure(let error):
+//             print(error.localizedDescription)
+//             return completion(.failure(.ckError(error)))
+//         }
+//         print("Inside operation query block switch")
+//     }
+//     publicDB.add(operation)
+// }

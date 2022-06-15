@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		247622E1285A551800D12F20 /* SearchableRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247622E0285A551800D12F20 /* SearchableRecord.swift */; };
 		24905D68285A7C82005CAC91 /* PhotoSelectorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24905D67285A7C82005CAC91 /* PhotoSelectorViewController.swift */; };
+		24905D6E285A99A8005CAC91 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24905D6D285A99A8005CAC91 /* CloudKit.framework */; };
 		2495099C2859325200989A05 /* PostListTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2495099B2859325200989A05 /* PostListTableViewController.swift */; };
 		2495099F2859326A00989A05 /* PostDetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2495099E2859326A00989A05 /* PostDetailTableViewController.swift */; };
 		249509A12859327A00989A05 /* AddPostTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 249509A02859327A00989A05 /* AddPostTableViewController.swift */; };
@@ -27,6 +28,8 @@
 /* Begin PBXFileReference section */
 		247622E0285A551800D12F20 /* SearchableRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchableRecord.swift; sourceTree = "<group>"; };
 		24905D67285A7C82005CAC91 /* PhotoSelectorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoSelectorViewController.swift; sourceTree = "<group>"; };
+		24905D6B285A99A6005CAC91 /* Continuum.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Continuum.entitlements; sourceTree = "<group>"; };
+		24905D6D285A99A8005CAC91 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		2495099B2859325200989A05 /* PostListTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostListTableViewController.swift; sourceTree = "<group>"; };
 		2495099E2859326A00989A05 /* PostDetailTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostDetailTableViewController.swift; sourceTree = "<group>"; };
 		249509A02859327A00989A05 /* AddPostTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPostTableViewController.swift; sourceTree = "<group>"; };
@@ -49,12 +52,21 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				24905D6E285A99A8005CAC91 /* CloudKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		24905D6C285A99A8005CAC91 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				24905D6D285A99A8005CAC91 /* CloudKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		2495099A285930CC00989A05 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -111,6 +123,7 @@
 			children = (
 				F7F99C372211F96400D13C4C /* Continuum */,
 				F7F99C362211F96400D13C4C /* Products */,
+				24905D6C285A99A8005CAC91 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -125,6 +138,7 @@
 		F7F99C372211F96400D13C4C /* Continuum */ = {
 			isa = PBXGroup;
 			children = (
+				24905D6B285A99A6005CAC91 /* Continuum.entitlements */,
 				249509AE28593B9900989A05 /* Views */,
 				249509A4285932EB00989A05 /* Model */,
 				2495099A285930CC00989A05 /* Resources */,
@@ -365,6 +379,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Continuum/Continuum.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = X39HH6F75Z;
 				INFOPLIST_FILE = Continuum/Resources/Info.plist;
@@ -384,6 +399,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Continuum/Continuum.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = X39HH6F75Z;
 				INFOPLIST_FILE = Continuum/Resources/Info.plist;

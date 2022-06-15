@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CloudKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -15,7 +16,42 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-    // Override point for customization after application launch.
+    
+      
+      checkICloudStatus { bool in
+          if !bool {
+              DispatchQueue.main.async {
+                  self.window?.rootViewController?.presentsSimpleAlertWith(title: "Error signing in to ICloud", message: nil)
+              }
+          }
+      }
+      
+      
+      func checkICloudStatus(completion: @escaping (Bool) -> Void) {
+          CKContainer.default().accountStatus { status, error in
+              if let error = error {
+                  print(error.localizedDescription)
+                  return
+              }
+              
+              switch status {
+              case .couldNotDetermine:
+                  return completion(false)
+              case .available:
+                  return completion(true)
+              case .restricted:
+                  return completion(false)
+              case .noAccount:
+                  return completion(false)
+              case .temporarilyUnavailable:
+                  return completion(false)
+              @unknown default:
+                  return completion(false)
+              }
+          }
+      }
+      
+      
     return true
   }
 
