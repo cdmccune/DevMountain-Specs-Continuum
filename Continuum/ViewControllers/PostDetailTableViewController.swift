@@ -50,18 +50,29 @@ class PostDetailTableViewController: UITableViewController {
         
         let comment = post?.comments[indexPath.row]
         
+        
         var content = cell.defaultContentConfiguration()
         
         content.text = comment?.text
         let date = comment?.timestamp ?? Date()
         content.secondaryText = DateForm.dateFormatter.string(from: date)
+        cell.contentConfiguration = content
         return cell
     }
 
     @IBAction func commentButtonTapped(_ sender: Any) {
-        let alert = UIAlertController()
+        let alert = UIAlertController(title: "Add Your Comment", message: nil, preferredStyle: .alert)
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
-        let OKAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+        let OKAction = UIAlertAction(title: "OK", style: .default) { _ in
+            guard let textField = alert.textFields?[0] else {return}
+            if let comment = textField.text, comment != "", let post = self.post {
+                PostController.shared.addComment(comment: comment, post: post) { _ in return}
+                self.tableView.reloadData()
+            }
+        }
+        alert.addTextField { textField in
+            textField.placeholder = "Your comment..."
+        }
         alert.addAction(cancelAction)
         alert.addAction(OKAction)
         
