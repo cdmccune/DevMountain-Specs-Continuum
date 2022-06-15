@@ -20,6 +20,10 @@
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Use your camera to take and upload pictures to the Continuum feed</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Acces your photos to select and upload pictures to the Continuum feed</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

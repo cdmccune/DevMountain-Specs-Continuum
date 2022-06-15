@@ -36,10 +36,43 @@ class AddPostTableViewController: UITableViewController {
     
     //MARK: - Helper Functions
     
+    func presentImagePickerActionSheet() {
+        let imagePickerController = UIImagePickerController()
+        imagePickerController.delegate = self
+        
+        let alert = UIAlertController(title: "Add Photo", message: nil, preferredStyle: .actionSheet)
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
+        alert.addAction(cancelAction)
+        
+        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+            alert.addAction(UIAlertAction(title: "Camera", style: .default, handler: { (_) in
+                
+                imagePickerController.sourceType = UIImagePickerController.SourceType.camera
+                
+                self.present(imagePickerController, animated: true, completion: nil)
+            }))
+        }
+        
+        if UIImagePickerController.isSourceTypeAvailable(.photoLibrary){
+            
+            alert.addAction(UIAlertAction(title: "Photos", style: .default, handler: { (_) in
+                
+                imagePickerController.sourceType = UIImagePickerController.SourceType.photoLibrary
+                
+                self.present(imagePickerController, animated: true, completion: nil)
+            }))
+        }
+        
+        present(alert, animated: true)
+    }
+    
+    
     @IBAction func selectImageButtonTapped(_ sender: Any) {
-        postImage.image = UIImage(named: "spaceEmptyState")
+        presentImagePickerActionSheet()
         selectImageButton.setTitle("", for: .normal)
-        selectedImage = UIImage(named: "spaceEmptySpace")
+//        postImage.image = UIImage(named: "spaceEmptyState")
+//        selectImageButton.setTitle("", for: .normal)
+//        selectedImage = UIImage(named: "spaceEmptySpace")
     }
     @IBAction func addPostButtonTapped(_ sender: Any) {
         guard let image = postImage.image,
@@ -55,6 +88,14 @@ class AddPostTableViewController: UITableViewController {
     @IBAction func cancelButtonTapped(_ sender: Any) {
         self.tabBarController?.selectedIndex = 1
     }
+    
+    @IBAction func editingEnded(_ sender: Any) {
+        captionLabel.resignFirstResponder()
+    }
+    
+    
+    
+    
     
     // MARK: - Table view data source
 
@@ -78,4 +119,20 @@ class AddPostTableViewController: UITableViewController {
     }
     */
 
+}
+
+extension AddPostTableViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        picker.dismiss(animated: true, completion: nil)
+        
+        if let photo = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
+            
+            selectImageButton.setTitle("", for: .normal)
+            postImage.image = photo
+        }
+    }
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true, completion: nil)
+    }
 }

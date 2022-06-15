@@ -9,7 +9,8 @@
 import Foundation
 import UIKit
 
-class Post {
+class Post: SearchableRecord {
+    
     var photoData: Data?
     var timestamp: Date
     var caption: String
@@ -31,6 +32,10 @@ class Post {
         self.photo = photo
     }
     
+    
+    func matches(searchTerm: String) -> Bool {
+        return caption.lowercased().contains(searchTerm.lowercased())
+    }
     
     
     
