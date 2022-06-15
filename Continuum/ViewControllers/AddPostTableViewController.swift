@@ -13,8 +13,7 @@ class AddPostTableViewController: UITableViewController {
     
     //MARK: - Properties
     
-    @IBOutlet var postImage: UIImageView!
-    @IBOutlet var selectImageButton: UIButton!
+  
     @IBOutlet var captionLabel: UITextField!
     
     var selectedImage: UIImage?
@@ -29,67 +28,48 @@ class AddPostTableViewController: UITableViewController {
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         
-        selectImageButton.setTitle("Select Image", for: .normal)
-        postImage.image = nil
         selectedImage = nil
         captionLabel.text = ""
     }
     
     //MARK: - Helper Functions
     
-    func presentPhotoPicker() {
-        let imagePickerController = UIImagePickerController()
-        imagePickerController.delegate = self
-
-        let alert = UIAlertController(title: "Add Photo", message: nil, preferredStyle: .actionSheet)
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
-        alert.addAction(cancelAction)
-
-        if UIImagePickerController.isSourceTypeAvailable(.camera) {
-            alert.addAction(UIAlertAction(title: "Camera", style: .default, handler: { (_) in
-
-                imagePickerController.sourceType = UIImagePickerController.SourceType.camera
-
-                self.present(imagePickerController, animated: true, completion: nil)
-            }))
-        }
-        
-        alert.addAction(UIAlertAction(title: "Photo", style: .default, handler: { _ in
-            self.presentPHPicker()
-        }))
+//    func presentPhotoPicker() {
+//        let imagePickerController = UIImagePickerController()
+//        imagePickerController.delegate = self
 //
-//        if UIImagePickerController.isSourceTypeAvailable(.photoLibrary){
+//        let alert = UIAlertController(title: "Add Photo", message: nil, preferredStyle: .actionSheet)
+//        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
+//        alert.addAction(cancelAction)
 //
-//            alert.addAction(UIAlertAction(title: "Photos", style: .default, handler: { (_) in
+//        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+//            alert.addAction(UIAlertAction(title: "Camera", style: .default, handler: { (_) in
 //
-//                imagePickerController.sourceType = UIImagePickerController.SourceType.photoLibrary
+//                imagePickerController.sourceType = UIImagePickerController.SourceType.camera
 //
 //                self.present(imagePickerController, animated: true, completion: nil)
 //            }))
 //        }
 //
-        present(alert, animated: true)
-    }
+//        alert.addAction(UIAlertAction(title: "Photo", style: .default, handler: { _ in
+//            self.presentPHPicker()
+//        }))
+//
+//        present(alert, animated: true)
+//    }
+//
+//    func presentPHPicker() {
+//        var configuration = PHPickerConfiguration()
+//        configuration.filter = PHPickerFilter.images
+//        configuration.selectionLimit = 1
+//
+//        let picker = PHPickerViewController(configuration: configuration)
+//        picker.delegate = self
+//        self.present(picker, animated: true)
+//    }
     
-    func presentPHPicker() {
-        var configuration = PHPickerConfiguration()
-        configuration.filter = PHPickerFilter.images
-        configuration.selectionLimit = 1
-        
-        let picker = PHPickerViewController(configuration: configuration)
-        picker.delegate = self
-        self.present(picker, animated: true)
-    }
-    
-    
-    @IBAction func selectImageButtonTapped(_ sender: Any) {
-        presentPhotoPicker()
-//        postImage.image = UIImage(named: "spaceEmptyState")
-//        selectImageButton.setTitle("", for: .normal)
-//        selectedImage = UIImage(named: "spaceEmptySpace")
-    }
     @IBAction func addPostButtonTapped(_ sender: Any) {
-        guard let image = postImage.image,
+        guard let image = selectedImage,
               let caption = captionLabel.text,
               caption != "" else {return}
         PostController.shared
@@ -120,60 +100,70 @@ class AddPostTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 1
     }
-
-   
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
+    
+    //MARK: - Navigation
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
-}
-
-extension AddPostTableViewController: UIImagePickerControllerDelegate {
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        picker.dismiss(animated: true, completion: nil)
-
-        if let photo = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
-
-            selectImageButton.setTitle("", for: .normal)
-            postImage.image = photo
-        }
-    }
-
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        picker.dismiss(animated: true, completion: nil)
-    }
-}
-
-extension AddPostTableViewController: PHPickerViewControllerDelegate, UINavigationControllerDelegate {
-    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-        
-        dismiss(animated: true)
-        
-        
-        for result in results {
-            result.itemProvider.loadObject(ofClass: UIImage.self) { image, error in
-                if let error = error {
-                    print(error.localizedDescription)
-                    return
-                }
-                
-                if let image = image as? UIImage {
-                    DispatchQueue.main.async {
-                        self.postImage.image = image
-                        self.selectImageButton.setTitle("", for: .normal)
-                    }
-                }
-            }
+        if segue.identifier == "toImagePicker",
+           let destination = segue.destination as? PhotoSelectorViewController{
+            destination.delegate = self
         }
         
         
-        
     }
+    
+    
+    
+
 }
+
+extension AddPostTableViewController: PhotoSelectorViewControllerDelegate {
+    func photoSelectorViewControllerSelected(image: UIImage) {
+        selectedImage = image
+    }
+    
+    
+}
+
+//extension AddPostTableViewController: UIImagePickerControllerDelegate {
+//    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+//        picker.dismiss(animated: true, completion: nil)
+//
+//        if let photo = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
+//
+//            selectImageButton.setTitle("", for: .normal)
+//            postImage.image = photo
+//        }
+//    }
+//
+//    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+//        picker.dismiss(animated: true, completion: nil)
+//    }
+//}
+//
+//extension AddPostTableViewController: PHPickerViewControllerDelegate, UINavigationControllerDelegate {
+//    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+//
+//        dismiss(animated: true)
+//
+//
+//        for result in results {
+//            result.itemProvider.loadObject(ofClass: UIImage.self) { image, error in
+//                if let error = error {
+//                    print(error.localizedDescription)
+//                    return
+//                }
+//
+//                if let image = image as? UIImage {
+//                    DispatchQueue.main.async {
+//                        self.postImage.image = image
+//                        self.selectImageButton.setTitle("", for: .normal)
+//                    }
+//                }
+//            }
+//        }
+//
+//
+//
+//    }
+//}

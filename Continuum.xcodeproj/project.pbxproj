@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		247622E1285A551800D12F20 /* SearchableRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 247622E0285A551800D12F20 /* SearchableRecord.swift */; };
+		24905D68285A7C82005CAC91 /* PhotoSelectorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24905D67285A7C82005CAC91 /* PhotoSelectorViewController.swift */; };
 		2495099C2859325200989A05 /* PostListTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2495099B2859325200989A05 /* PostListTableViewController.swift */; };
 		2495099F2859326A00989A05 /* PostDetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2495099E2859326A00989A05 /* PostDetailTableViewController.swift */; };
 		249509A12859327A00989A05 /* AddPostTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 249509A02859327A00989A05 /* AddPostTableViewController.swift */; };
@@ -25,6 +26,7 @@
 
 /* Begin PBXFileReference section */
 		247622E0285A551800D12F20 /* SearchableRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchableRecord.swift; sourceTree = "<group>"; };
+		24905D67285A7C82005CAC91 /* PhotoSelectorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoSelectorViewController.swift; sourceTree = "<group>"; };
 		2495099B2859325200989A05 /* PostListTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostListTableViewController.swift; sourceTree = "<group>"; };
 		2495099E2859326A00989A05 /* PostDetailTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostDetailTableViewController.swift; sourceTree = "<group>"; };
 		249509A02859327A00989A05 /* AddPostTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPostTableViewController.swift; sourceTree = "<group>"; };
@@ -72,6 +74,7 @@
 				2495099B2859325200989A05 /* PostListTableViewController.swift */,
 				2495099E2859326A00989A05 /* PostDetailTableViewController.swift */,
 				249509A02859327A00989A05 /* AddPostTableViewController.swift */,
+				24905D67285A7C82005CAC91 /* PhotoSelectorViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -209,6 +212,7 @@
 				249509B02859470A00989A05 /* Helpers+Extensions.swift in Sources */,
 				249509AB2859382C00989A05 /* Comment.swift in Sources */,
 				2495099F2859326A00989A05 /* PostDetailTableViewController.swift in Sources */,
+				24905D68285A7C82005CAC91 /* PhotoSelectorViewController.swift in Sources */,
 				249509A3285932E400989A05 /* Post.swift in Sources */,
 				249509A92859374B00989A05 /* PostError.swift in Sources */,
 				249509A6285936AD00989A05 /* PostController.swift in Sources */,
