@@ -74,7 +74,6 @@ class AddPostTableViewController: UITableViewController {
               caption != "" else {return}
         PostController.shared
             .createPostWith(image: image, caption: caption) { _ in
-                print("hi")
             }
         self.tabBarController?.selectedIndex = 1
     }

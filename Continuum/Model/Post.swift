@@ -92,7 +92,8 @@ extension CKRecord {
         self.setValuesForKeys([
             PostStrings.captionKey : post.caption,
             PostStrings.timestampKey : post.timestamp,
-            PostStrings.photoKey : post.imageAsset
+            PostStrings.photoKey : post.imageAsset,
+            PostStrings.commentCountKey : post.commentCount
         ])
         
     }

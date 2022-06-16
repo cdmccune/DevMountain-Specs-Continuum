@@ -24,7 +24,7 @@ class PostController {
         let comment = Comment(text: comment, postReference: postReference)
         let record = CKRecord(comment: comment)
         
-        
+        post.comments.insert(comment, at: 0)
         
         publicDB.save(record) { record, error in
             if let error = error {
@@ -70,7 +70,7 @@ class PostController {
             switch result {
             case .success(let record):
                 if let post = Post(ckrecord: record) {
-                    fetchedPosts.append(post)
+                    fetchedPosts.insert(post, at: 0)
                 } else {
                     return completion(.failure(.noPost))
                 }
@@ -112,10 +112,11 @@ class PostController {
     func fetchComments(for post: Post, completion: @escaping (Result<[Comment]?, PostError>) -> Void ) {
         let postReference = post.recordID
         let predicate = NSPredicate(format: "%K == %@", CommentKeys.postReference, postReference)
-        let commentIDs = post.comments.compactMap({$0.recordID})
-        let predicate2 = NSPredicate(format: "NOT(recordID IN %@)", commentIDs)
-        let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicate,predicate2])
-        let query = CKQuery(recordType: CommentKeys.typeKey, predicate: compoundPredicate)
+//        let commentIDs = post.comments.compactMap({$0.recordID})
+//        let predicate2 = NSPredicate(format: "NOT(recordID IN %@)", commentIDs)
+//        let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicate,predicate2])
+//        let query = CKQuery(recordType: CommentKeys.typeKey, predicate: compoundPredicate)
+        let query = CKQuery(recordType: CommentKeys.typeKey, predicate: predicate)
         var operation = CKQueryOperation(query: query)
         
         var fetchedComments: [Comment] = []
@@ -124,7 +125,7 @@ class PostController {
             switch result {
             case .success(let record):
                 if let comment = Comment(ckRecord: record) {
-                    fetchedComments.append(comment)
+                    fetchedComments.insert(comment, at: 0)
                 } else {
                     return completion(.failure(.noComment))
                 }
