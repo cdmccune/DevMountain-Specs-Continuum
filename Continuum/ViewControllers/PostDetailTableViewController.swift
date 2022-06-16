@@ -24,7 +24,15 @@ class PostDetailTableViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        updateComments()
+        
+        
+        if let comments = post?.comments, comments.count>0 {
+            tableView.reloadData()
+            print("already comments")
+        } else {
+            updateComments()
+            print("needs new comments")
+        }
     }
     
     //MARK: - Helper Functions
@@ -38,6 +46,8 @@ class PostDetailTableViewController: UITableViewController {
                 case .success(let comments):
                     if let comments = comments {
                         post.comments = comments
+                        PostController.shared.updateCommentsOnPost(post: post, comments: comments)
+                        
                         self.tableView.reloadData()
                     }
                 case .failure(let error):

@@ -25,6 +25,7 @@ class PostController {
         let record = CKRecord(comment: comment)
         
         post.comments.insert(comment, at: 0)
+        post.commentCount = post.comments.count
         
         publicDB.save(record) { record, error in
             if let error = error {
@@ -37,9 +38,8 @@ class PostController {
             self.modifyCommentCount(post: post, completion: nil)
             
             completion(.success(commentNew))
-            
-            
         }
+        
         
         
     }
@@ -177,6 +177,10 @@ class PostController {
         self.publicDB.add(modifyOperation)
     }
     
+    func updateCommentsOnPost(post: Post, comments: [Comment]) {
+        guard let index = posts.firstIndex(of: post) else {return}
+        posts[index].comments = comments
+    }
     
 }
 

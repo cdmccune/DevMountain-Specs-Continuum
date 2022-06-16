@@ -98,3 +98,9 @@ extension CKRecord {
         
     }
 }
+
+extension Post: Equatable {}
+
+func ==(lhs: Post, rhs: Post) -> Bool{
+    return lhs.recordID == rhs.recordID
+}

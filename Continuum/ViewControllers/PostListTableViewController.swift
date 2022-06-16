@@ -24,7 +24,6 @@ class PostListTableViewController: UITableViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         resultsArray = PostController.shared.posts
-        pullPostsFromICloud()
         tableView.reloadData()
         
     }
@@ -32,6 +31,7 @@ class PostListTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         searchBar.delegate = self
+        pullPostsFromICloud()
         tableView.reloadData()
     }
     
