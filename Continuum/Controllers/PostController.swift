@@ -12,10 +12,19 @@ import UIKit
 
 class PostController {
     
+    //MARK: - Properties
+    
     static var shared = PostController()
     
     let publicDB = CKContainer.default().publicCloudDatabase
     var posts: [Post] = []
+    
+    private init() {
+        subscribeToNewPosts(completion: nil)
+    }
+    
+    
+    //MARK: - iCloud Crud Functions
     
     func addComment(comment: String, post: Post, completion: @escaping (Result<Comment, PostError>) -> Void) {
         
@@ -180,6 +189,33 @@ class PostController {
     func updateCommentsOnPost(post: Post, comments: [Comment]) {
         guard let index = posts.firstIndex(of: post) else {return}
         posts[index].comments = comments
+    }
+    
+    //MARK: - Subscription Functions
+    
+    func subscribeToNewPosts(completion: ((Bool, Error?) -> Void)?) {
+        let predicate = NSPredicate(value: true)
+        
+        let subscription = CKQuerySubscription(recordType: PostStrings.typeKey, predicate: predicate, subscriptionID: PostStrings.allPostSub, options: .firesOnRecordCreation)
+        
+        let notificationInfo = subscription.notificationInfo
+        notificationInfo?.alertBody = "There has been a new post"
+        notificationInfo?.title = "Good News!"
+        notificationInfo?.soundName = "default"
+        notificationInfo?.shouldBadge = true
+        
+        subscription.notificationInfo = notificationInfo
+        
+        publicDB.save(subscription) { _, error in
+            if let error = error {
+                print(error.localizedDescription)
+                completion?(false, error)
+                return
+            }
+            print("success")
+            (completion?(true, nil))
+            return
+        }
     }
     
 }

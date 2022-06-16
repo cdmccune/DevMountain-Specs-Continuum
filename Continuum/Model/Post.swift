@@ -17,6 +17,7 @@ class PostStrings {
     static let commentsKey = "comments"
     static let commentCountKey = "commentCount"
     static let photoKey = "photo"
+    static let allPostSub = "AllPosts"
 }
 
 class Post: SearchableRecord {
