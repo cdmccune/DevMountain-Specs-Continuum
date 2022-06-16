@@ -9,6 +9,7 @@
 import Foundation
 import CloudKit
 import UIKit
+import UserNotifications
 
 class PostController {
     
@@ -194,28 +195,144 @@ class PostController {
     //MARK: - Subscription Functions
     
     func subscribeToNewPosts(completion: ((Bool, Error?) -> Void)?) {
+//        guard !UserDefaults.standard.bool(forKey: "didCreateQuerySubscription")
+//            else { return }
+        
         let predicate = NSPredicate(value: true)
         
-        let subscription = CKQuerySubscription(recordType: PostStrings.typeKey, predicate: predicate, subscriptionID: PostStrings.allPostSub, options: .firesOnRecordCreation)
+        let subscription = CKQuerySubscription(recordType: PostStrings.typeKey,
+                                               predicate: predicate,
+                                               subscriptionID: "Physical device",
+                                               options: .firesOnRecordCreation)
         
-        let notificationInfo = subscription.notificationInfo
-        notificationInfo?.alertBody = "There has been a new post"
-        notificationInfo?.title = "Good News!"
-        notificationInfo?.soundName = "default"
-        notificationInfo?.shouldBadge = true
+        let notifcationInfo = CKSubscription.NotificationInfo()
+        notifcationInfo.alertBody = "New post added to Continuum"
         
-        subscription.notificationInfo = notificationInfo
+        notifcationInfo.shouldBadge = true
+        notifcationInfo.shouldSendContentAvailable = true
+        subscription.notificationInfo = notifcationInfo
         
         publicDB.save(subscription) { _, error in
             if let error = error {
-                print(error.localizedDescription)
+                print("error creating subscription: \(error)")
                 completion?(false, error)
                 return
             }
+            completion?(true, nil)
             print("success")
-            (completion?(true, nil))
             return
         }
+        
+//        let operation = CKModifySubscriptionsOperation(subscriptionsToSave: [subscription],
+//                                                       subscriptionIDsToDelete: nil)
+//
+//        operation.modifySubscriptionsResultBlock = {result in
+//            switch result {
+//            case .success():
+//                print("success")
+////                UserDefaults.standard.setValue(true, forKey: "didCreateQuerySubscription")
+//            case .failure(let error):
+//                print("error creating a subscription for new posts: \(error)")
+//                return
+//            }
+//        }
+//
+//        operation.qualityOfService = .userInteractive
+//        publicDB.add(operation)
+    }
+    
+    func addSubscriptionTo(commentsForPost post: Post, completion: ((Bool, Error?) -> Void)?) {
+        let postReference = post.recordID
+        let predicate = NSPredicate(format: "%K == %@", CommentKeys.postReference, postReference)
+        
+        let subscription = CKQuerySubscription(recordType: CommentKeys.typeKey, predicate: predicate, subscriptionID: post.recordID.recordName, options: .firesOnRecordCreation)
+
+        
+        let notifcationInfo = CKSubscription.NotificationInfo()
+        notifcationInfo.alertBody = "New post added to Continuum"
+        
+        notifcationInfo.shouldBadge = true
+        notifcationInfo.shouldSendContentAvailable = true
+        subscription.notificationInfo = notifcationInfo
+        
+        publicDB.save(subscription) { _, error in
+            if let error = error {
+                print(error)
+                completion?(false, error)
+                return
+            }
+            completion?(true, nil)
+            return
+        }
+    }
+    
+    func removeSubscriptionTo(commentsForPost post: Post, completion: ((Bool, Error?) -> Void)?) {
+        publicDB.delete(withSubscriptionID: post.recordID.recordName) { _, error in
+            if let error = error {
+                print(error)
+                completion?(false, error)
+                return
+            }
+            completion?(true, nil)
+            return
+        }
+    }
+    
+    func checkSubscription(to post: Post, completion: ((Bool)->Void)?) {
+        publicDB.fetch(withSubscriptionID: post.recordID.recordName) { subscription, error in
+            if error != nil {
+//                print(error)
+                completion?(false)
+                return
+            }
+            
+            subscription != nil ? completion?(true): completion?(false)
+            return
+               
+        }
+    }
+    
+    func toggleSubscriptionTo(commentForPost post: Post, completion: ((Bool, Error?) -> Void)?) {
+        checkSubscription(to: post) { doesExist in
+            
+            print("Subscription exists: \(doesExist)")
+            
+            if !doesExist {
+                
+                self.addSubscriptionTo(commentsForPost: post) { success, error in
+                    if let error = error, !success {
+                        print("error subscribing to comments for post \(post.caption) ----  \(error)")
+                        completion?(false, error)
+                        return
+                    }
+                    
+                    if success {
+                        print("success subscribing to post with caption: \(post.caption)")
+                        completion?(true, nil)
+                        return
+                    } else{
+                        print("some other error")
+                        completion?(false, nil)
+                    }
+                    
+                   
+                }
+            } else {
+                self.removeSubscriptionTo(commentsForPost: post) { success, error in
+                    if success {
+                        print("removed subscription for post with caption: \(post.caption)")
+                        completion?(true, nil)
+                        return
+                    } else {
+                        print("error removing subsciption for post with caption \(post.caption)")
+                        completion?(false, error)
+                        return
+                    }
+                }
+            }
+            
+        }
+        
     }
     
 }

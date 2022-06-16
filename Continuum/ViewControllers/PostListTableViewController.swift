@@ -12,6 +12,8 @@ class PostListTableViewController: UITableViewController {
     
     //MARK: - Properties
     
+    var refresh = UIRefreshControl()
+    @IBOutlet var activityMonitor: UIActivityIndicatorView!
     @IBOutlet var searchBar: UISearchBar!
     var resultsArray: [SearchableRecord] = []
     var isSearching = false
@@ -29,15 +31,20 @@ class PostListTableViewController: UITableViewController {
     }
     
     override func viewDidLoad() {
+        self.activityMonitor.startAnimating()
         super.viewDidLoad()
         searchBar.delegate = self
         pullPostsFromICloud()
         tableView.reloadData()
+        
+        refresh.attributedTitle = NSAttributedString(string: "Pull down to reload posts!")
+        refresh.addTarget(self, action: #selector(pullPostsFromICloud), for: .valueChanged)
+        tableView.addSubview(refresh)
     }
     
     //MARK: - Helper Functions
     
-    func pullPostsFromICloud() {
+    @objc func pullPostsFromICloud() {
         PostController.shared.fetchPosts { result in
             DispatchQueue.main.async {
                 switch result {
@@ -45,6 +52,8 @@ class PostListTableViewController: UITableViewController {
                     if let posts = posts {
                         PostController.shared.posts = posts
                         self.tableView.reloadData()
+                        self.activityMonitor.stopAnimating()
+                        self.refresh.endRefreshing()
                     }
                 case .failure(let error):
                     print(error)

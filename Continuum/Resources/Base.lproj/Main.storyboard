@@ -3,6 +3,7 @@
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -38,6 +39,20 @@
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                             <textInputTraits key="textInputTraits"/>
                         </searchBar>
+                        <view key="tableFooterView" contentMode="scaleToFill" id="XzG-0d-oD3">
+                            <rect key="frame" x="0.0" y="725.5" width="414" height="44"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <subviews>
+                                <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="2nu-fa-PnJ">
+                                    <rect key="frame" x="197" y="12" width="20" height="20"/>
+                                </activityIndicatorView>
+                            </subviews>
+                            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            <constraints>
+                                <constraint firstItem="2nu-fa-PnJ" firstAttribute="centerX" secondItem="XzG-0d-oD3" secondAttribute="centerX" id="0IW-x9-nWG"/>
+                                <constraint firstItem="2nu-fa-PnJ" firstAttribute="centerY" secondItem="XzG-0d-oD3" secondAttribute="centerY" id="OO0-ob-e59"/>
+                            </constraints>
+                        </view>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="postCell" rowHeight="472" id="ozH-1A-3DS" customClass="PostTableViewCell" customModule="Continuum" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="88.5" width="414" height="472"/>
@@ -93,6 +108,7 @@
                     </tableView>
                     <navigationItem key="navigationItem" title="Posts" id="iBS-IC-uHQ"/>
                     <connections>
+                        <outlet property="activityMonitor" destination="2nu-fa-PnJ" id="VTJ-IS-eo7"/>
                         <outlet property="searchBar" destination="JJ6-e9-ugN" id="rUT-v2-liD"/>
                     </connections>
                 </tableViewController>
@@ -150,6 +166,9 @@
                                                     <buttonConfiguration key="configuration" style="plain" title="Follow Post">
                                                         <fontDescription key="titleFontDescription" type="system" pointSize="15"/>
                                                     </buttonConfiguration>
+                                                    <connections>
+                                                        <action selector="followButtonTapped:" destination="17c-93-jdl" eventType="touchUpInside" id="0x2-vi-fAI"/>
+                                                    </connections>
                                                 </button>
                                             </subviews>
                                             <constraints>
@@ -203,7 +222,9 @@
                     </tableView>
                     <navigationItem key="navigationItem" id="CPI-JU-dos"/>
                     <connections>
+                        <outlet property="buttonStackView" destination="4IB-uT-gDe" id="KJj-Gu-r52"/>
                         <outlet property="commentButton" destination="PNb-Ij-Tdc" id="56R-AN-L8B"/>
+                        <outlet property="followButton" destination="b2k-1Z-VLc" id="60M-2Y-wXe"/>
                         <outlet property="postImageView" destination="KX1-AQ-2KX" id="7zL-g6-tqR"/>
                     </connections>
                 </tableViewController>
@@ -384,6 +405,7 @@
                                 </connections>
                             </button>
                         </subviews>
+                        <viewLayoutGuide key="safeArea" id="ckE-7f-dBn"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstAttribute="bottom" secondItem="Juh-Pd-6tg" secondAttribute="bottom" constant="5" id="0N3-vK-urm"/>

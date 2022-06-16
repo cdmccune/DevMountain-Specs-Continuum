@@ -10,14 +10,17 @@ import UIKit
 
 class PostDetailTableViewController: UITableViewController {
 
+    @IBOutlet var buttonStackView: UIStackView!
     @IBOutlet var postImageView: UIImageView!
     @IBOutlet var commentButton: UIButton!
+    @IBOutlet var followButton: UIButton!
     
     
     var post: Post? {
         didSet {
             loadViewIfNeeded()
             updateViews()
+            updateFollowButtonText()
         }
     }
     
@@ -64,6 +67,19 @@ class PostDetailTableViewController: UITableViewController {
         tableView.reloadData()
       
     }
+    
+    func updateFollowButtonText() {
+        guard let post = post else {return}
+        PostController.shared.checkSubscription(to: post) { isFollowing in
+            
+            DispatchQueue.main.async {
+                let title = isFollowing ? "Unfollow" : "Follow Post"
+                self.followButton.setTitle(title, for: .normal)
+                self.buttonStackView.layoutIfNeeded()
+                
+            }
+        }
+    }
 
     // MARK: - Table view data source
 
@@ -87,6 +103,8 @@ class PostDetailTableViewController: UITableViewController {
         return cell
     }
 
+    //MARK: - Outlet Button Functions
+    
     @IBAction func commentButtonTapped(_ sender: Any) {
         let alert = UIAlertController(title: "Add Your Comment", message: nil, preferredStyle: .alert)
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
@@ -115,6 +133,19 @@ class PostDetailTableViewController: UITableViewController {
         }
     }
     
+    @IBAction func followButtonTapped(_ sender: Any) {
+        guard let post = post else {
+            return
+        }
+        
+        PostController.shared.toggleSubscriptionTo(commentForPost: post) { _, error in
+            if let error = error {
+                print(error.localizedDescription)
+                return
+            }
+            self.updateFollowButtonText()
+        }
+    }
     
 
 }
