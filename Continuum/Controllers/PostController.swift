@@ -24,6 +24,8 @@ class PostController {
         let comment = Comment(text: comment, postReference: postReference)
         let record = CKRecord(comment: comment)
         
+        
+        
         publicDB.save(record) { record, error in
             if let error = error {
                 completion(.failure(.ckError(error)))
@@ -31,6 +33,8 @@ class PostController {
             
             guard let record = record,
                   let commentNew = Comment(ckRecord: record) else {return completion(.failure(.noComment))}
+            
+            self.modifyCommentCount(post: post, completion: nil)
             
             completion(.success(commentNew))
             
@@ -109,9 +113,67 @@ class PostController {
         let postReference = post.recordID
         let predicate = NSPredicate(format: "%K == %@", CommentKeys.postReference, postReference)
         let commentIDs = post.comments.compactMap({$0.recordID})
-        let predicate2 = NSPredicate(format: "NOT(recordID IN %@", commentIDs)
+        let predicate2 = NSPredicate(format: "NOT(recordID IN %@)", commentIDs)
         let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicate,predicate2])
         let query = CKQuery(recordType: CommentKeys.typeKey, predicate: compoundPredicate)
+        var operation = CKQueryOperation(query: query)
+        
+        var fetchedComments: [Comment] = []
+        
+        operation.recordMatchedBlock = { (_, result) in
+            switch result {
+            case .success(let record):
+                if let comment = Comment(ckRecord: record) {
+                    fetchedComments.append(comment)
+                } else {
+                    return completion(.failure(.noComment))
+                }
+            case .failure(let error):
+                return completion(.failure(.ckError(error)))
+            }
+        }
+        
+        operation.queryResultBlock = {result in
+            switch result{
+            case .success(let cursor):
+                if let cursor = cursor {
+                    let nextOperation = CKQueryOperation(cursor: cursor)
+                    nextOperation.queryResultBlock = operation.queryResultBlock
+                    nextOperation.recordMatchedBlock = operation.recordMatchedBlock
+                    nextOperation.qualityOfService = .userInteractive
+                    operation = nextOperation
+                    self.publicDB.add(nextOperation)
+                } else {
+                    print(fetchedComments.description)
+                    return completion(.success(fetchedComments))
+                }
+            case .failure(let error):
+                print(error.localizedDescription)
+                completion(.failure(.ckError(error)))
+            }
+        }
+        publicDB.add(operation)
+    }
+    
+    func modifyCommentCount(post: Post, completion:  ((Bool) -> Void)?) {
+        post.commentCount = post.comments.count
+        
+        let modifyOperation = CKModifyRecordsOperation(recordsToSave: [CKRecord(post: post)], recordIDsToDelete: nil)
+        
+        modifyOperation.savePolicy = .changedKeys
+        
+        modifyOperation.modifyRecordsResultBlock = { result in
+            switch result {
+            case .success():
+                completion?(true)
+                return
+            case .failure(let error):
+                print(error)
+                completion?(true)
+                return
+            }
+        }
+        self.publicDB.add(modifyOperation)
     }
     
     

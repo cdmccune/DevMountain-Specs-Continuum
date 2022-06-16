@@ -24,11 +24,28 @@ class PostDetailTableViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-     
+        updateComments()
     }
     
     //MARK: - Helper Functions
+    
+    func updateComments() {
+        guard let post = post else {return}
+
+        PostController.shared.fetchComments(for: post) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let comments):
+                    if let comments = comments {
+                        post.comments = comments
+                        self.tableView.reloadData()
+                    }
+                case .failure(let error):
+                    print(error)
+                }
+            }
+        }
+    }
     
     func updateViews() {
         guard let post = post else {return}

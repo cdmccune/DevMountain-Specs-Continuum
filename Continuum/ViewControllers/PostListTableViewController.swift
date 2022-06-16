@@ -31,8 +31,29 @@ class PostListTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         searchBar.delegate = self
+        pullPostsFromICloud()
 
     }
+    
+    //MARK: - Helper Functions
+    
+    func pullPostsFromICloud() {
+        PostController.shared.fetchPosts { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let posts):
+                    if let posts = posts {
+                        PostController.shared.posts = posts
+                        self.tableView.reloadData()
+                    }
+                case .failure(let error):
+                    print(error)
+                }
+            }
+        }
+    }
+    
+    
 
     // MARK: - Table view data source
 

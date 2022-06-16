@@ -11,16 +11,18 @@ import UIKit
 import CloudKit
 
 class PostStrings {
-    static let typeKey = "typeKey"
+    static let typeKey = "Post"
     static let timestampKey = "timestamp"
     static let captionKey = "caption"
     static let commentsKey = "comments"
+    static let commentCountKey = "commentCount"
     static let photoKey = "photo"
 }
 
 class Post: SearchableRecord {
     
     var recordID: CKRecord.ID
+    var commentCount: Int
     var photoData: Data?
     var timestamp: Date
     var caption: String
@@ -47,11 +49,12 @@ class Post: SearchableRecord {
         return CKAsset(fileURL: fileURL)
     }
     
-    init(photo: UIImage?, timestamp: Date = Date(), caption: String, comments: [Comment] = [], recordID: CKRecord.ID = CKRecord.ID(recordName: UUID().uuidString)) {
+    init(photo: UIImage?, timestamp: Date = Date(), caption: String, comments: [Comment] = [], recordID: CKRecord.ID = CKRecord.ID(recordName: UUID().uuidString), commentCount: Int = 0) {
         self.timestamp = timestamp
         self.caption = caption
         self.comments = comments
         self.recordID = recordID
+        self.commentCount = commentCount
         self.photo = photo
     }
     
@@ -64,7 +67,8 @@ class Post: SearchableRecord {
 extension Post {
     convenience init?(ckrecord: CKRecord) {
         guard let caption = ckrecord[PostStrings.captionKey] as? String,
-              let timestamp = ckrecord[PostStrings.timestampKey] as? Date else {return nil}
+              let timestamp = ckrecord[PostStrings.timestampKey] as? Date,
+              let commentCount = ckrecord[PostStrings.commentCountKey] as? Int else {return nil}
         
         var postPhoto: UIImage?
         
@@ -77,7 +81,7 @@ extension Post {
                 print(error.localizedDescription)
             }
         }
-        self.init(photo: postPhoto, timestamp: timestamp, caption: caption, comments: [], recordID: ckrecord.recordID)
+        self.init(photo: postPhoto, timestamp: timestamp, caption: caption, comments: [], recordID: ckrecord.recordID, commentCount: commentCount)
     }
 }
 
